@@ -1,0 +1,37 @@
+{% extends 'frontend/base.html' %}
+
+{% block title %}{{ title }} | Zentry{% endblock %}
+
+{% block content %}
+<section class="feed-header">
+  <h1>{{ title }}</h1>
+  <p>Fresh posts from your circle and the wider network.</p>
+</section>
+
+{% if user.is_authenticated %}
+  <section class="composer">
+    <a class="avatar" href="{% url 'frontend:profile' user.id %}">
+      {% if user.avatar %}<img src="{{ user.avatar.url }}" alt="{{ user.username }}">{% else %}<span>{{ user.username|first|upper }}</span>{% endif %}
+    </a>
+    <form method="post" action="{% url 'frontend:post-create' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ post_form.content }}
+      <div class="composer-actions">
+        {{ post_form.image }}
+        <button class="primary-button" type="submit">Publish</button>
+      </div>
+    </form>
+  </section>
+{% endif %}
+
+<section class="feed-list">
+  {% for post in posts %}
+    {% include 'frontend/includes/post_card.html' %}
+  {% empty %}
+    <div class="empty-state">
+      <h2>No posts yet</h2>
+      <p>Follow someone or publish the first post.</p>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

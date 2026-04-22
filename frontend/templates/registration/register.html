@@ -1,0 +1,20 @@
+{% extends 'frontend/base.html' %}
+
+{% block title %}Join | Zentry{% endblock %}
+
+{% block content %}
+<section class="auth-card">
+  <p class="eyebrow">Start posting</p>
+  <h1>Create account</h1>
+  <form method="post" class="form-stack">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <label>Username {{ form.username }}</label>
+    <label>Email {{ form.email }}</label>
+    <label>Password {{ form.password }}</label>
+    <label>Confirm password {{ form.password_confirm }}</label>
+    <button class="primary-button" type="submit">Join Zentry</button>
+  </form>
+  <p class="muted">Already here? <a href="{% url 'frontend:login' %}">Log in</a></p>
+</section>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'frontend/base.html' %}
+
+{% block title %}{{ profile.username }} | Zentry{% endblock %}
+
+{% block content %}
+<section class="profile-hero">
+  <div class="profile-top">
+    <div class="avatar avatar-large">
+      {% if profile.avatar %}<img src="{{ profile.avatar.url }}" alt="{{ profile.username }}">{% else %}<span>{{ profile.username|first|upper }}</span>{% endif %}
+    </div>
+    <div class="profile-copy">
+      <h1>{{ profile.username }}</h1>
+      <p>{{ profile.bio|default:'No bio yet.' }}</p>
+      <div class="profile-stats">
+        <span>{{ followers_count }} followers</span>
+        <span>{{ following_count }} following</span>
+        <span>{{ posts.count }} posts</span>
+      </div>
+    </div>
+    {% if user.is_authenticated and user != profile %}
+      <form method="post" action="{% url 'frontend:follow' profile.id %}">
+        {% csrf_token %}
+        <button class="primary-button" type="submit">{% if is_following %}Following{% else %}Follow{% endif %}</button>
+      </form>
+    {% endif %}
+  </div>
+
+  {% if user == profile %}
+    <details class="edit-profile">
+      <summary>Edit profile</summary>
+      <form method="post" action="{% url 'frontend:profile-update' %}" enctype="multipart/form-data" class="form-grid">
+        {% csrf_token %}
+        <label>Username {{ profile_form.username }}</label>
+        <label>Bio {{ profile_form.bio }}</label>
+        <label>Avatar {{ profile_form.avatar }}</label>
+        <button class="primary-button" type="submit">Save</button>
+      </form>
+    </details>
+  {% endif %}
+</section>
+
+<section class="feed-list">
+  {% for post in posts %}
+    {% include 'frontend/includes/post_card.html' %}
+  {% empty %}
+    <div class="empty-state">
+      <h2>No posts</h2>
+      <p>{{ profile.username }} has not posted yet.</p>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

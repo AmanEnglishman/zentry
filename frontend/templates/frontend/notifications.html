@@ -1,0 +1,41 @@
+{% extends 'frontend/base.html' %}
+
+{% block title %}Notifications | Zentry{% endblock %}
+
+{% block content %}
+<section class="feed-header row-header">
+  <div>
+    <h1>Notifications</h1>
+    <p>Likes, comments and new followers.</p>
+  </div>
+  <form method="post" action="{% url 'frontend:notifications-read' %}">
+    {% csrf_token %}
+    <button class="ghost-button" type="submit">Mark all read</button>
+  </form>
+</section>
+
+<section class="list-panel">
+  {% for item in notifications %}
+    <article class="list-item {% if not item.is_read %}unread{% endif %}">
+      <div class="avatar">
+        {% if item.from_user.avatar %}<img src="{{ item.from_user.avatar.url }}" alt="{{ item.from_user.username }}">{% else %}<span>{{ item.from_user.username|first|upper }}</span>{% endif %}
+      </div>
+      <div>
+        <p>
+          <a class="username" href="{% url 'frontend:profile' item.from_user.id %}">{{ item.from_user.username }}</a>
+          {% if item.type == 'like' %}liked your post{% elif item.type == 'comment' %}commented on your post{% else %}started following you{% endif %}
+        </p>
+        {% if item.post %}
+          <p class="muted">{{ item.post.content|truncatechars:90 }}</p>
+        {% endif %}
+        <span class="timestamp">{{ item.created_at|timesince }} ago</span>
+      </div>
+    </article>
+  {% empty %}
+    <div class="empty-state">
+      <h2>No notifications</h2>
+      <p>Things are quiet right now.</p>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

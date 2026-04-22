@@ -1,0 +1,47 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block title %}Chat | Zentry{% endblock %}
+
+{% block content %}
+<section class="chat-panel">
+  <header class="chat-header">
+    <a class="ghost-button" href="{% url 'frontend:conversations' %}">Back</a>
+    <div>
+      <h1>
+        {% for participant in conversation.participants.all %}
+          {% if participant != user %}{{ participant.username }}{% endif %}
+        {% endfor %}
+      </h1>
+      <p id="typing-status" class="muted">Realtime chat</p>
+    </div>
+  </header>
+
+  <div id="message-list" class="message-list">
+    {% for message in conversation_messages %}
+      <div class="message-bubble {% if message.sender == user %}mine{% endif %}">
+        <p>{{ message.content }}</p>
+        <span>{{ message.created_at|time:'H:i' }}{% if message.is_read and message.sender == user %} · read{% endif %}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <form id="message-form" class="message-form" method="post">
+    {% csrf_token %}
+    {{ form.content }}
+    <button class="primary-button" type="submit">Send</button>
+  </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.ZENTRY_CHAT = {
+    conversationId: "{{ conversation.id }}",
+    token: "{{ ws_token|escapejs }}",
+    currentUserId: "{{ user.id }}",
+    fallbackUrl: "{% url 'frontend:conversation' conversation.id %}"
+  };
+</script>
+<script src="{% static 'frontend/chat.js' %}"></script>
+{% endblock %}
